@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>刷题</title>
+
+</head>
+<body>
+
+<div id="app">
+
+    <!--    <el-container>-->
+
+    <!--        <el-header>-->
+    <div class="content-header">
+        <!--                    <el-row :gutter="0">   &lt;!&ndash;gutter为栅格中的间隔&ndash;&gt;-->
+        <div style="height: 32px">
+            <el-col :span="16">
+                <div class="grid-content " @click="index">
+                    <font size="5">YWS_Code</font>
+                </div>
+            </el-col>
+
+            <el-col :span="8">
+                <div class="grid-content " align="right">
+                    <el-button type="text" @click="personal()">{{username}}</el-button>
+                    <el-button type="text" @click="sign_out()">退出</el-button>
+                </div>
+            </el-col>
+            <!--                    </el-row>-->
+        </div>
+    </div>
+
+    <!--        </el-header>-->
+
+    <div class="app-container">
+        <!--        <div class="box">-->
+        <el-container class="box">
+
+            <el-aside width="600px" span="8">    <!--width="600px"-->
+
+                <el-descriptions title="题目信息" column="1" size="medium"><!--:data="problem"-->
+
+                    <el-descriptions-item label="题目名称">{{problem.pbname}}</el-descriptions-item>
+                    <el-descriptions-item label="题目ID">{{problem.id}}</el-descriptions-item>
+                    <el-descriptions-item label="题目类别">
+                        <el-tag size="medium">{{problem.tag}}</el-tag>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="来源">{{problem.source}}</el-descriptions-item>
+                    <el-descriptions-item label="题目描述">{{problem.description}}</el-descriptions-item>
+                    <el-descriptions-item label="示例"></el-descriptions-item>
+                </el-descriptions>
+
+                <el-descriptions column=1 size="medium" direction="vertical">
+                    <el-descriptions-item label="输入">{{problem.input}}</el-descriptions-item>
+                    <el-descriptions-item label="输出">{{problem.output}}</el-descriptions-item>
+                </el-descriptions>
+
+                <el-row>
+                    <el-button type="primary" round size="small" @click="program()">编程</el-button>
+                    <el-button type="success" round size="small" @click="critic()">讨论</el-button>
+                </el-row>
+
+            </el-aside>
+
+            <el-main span="16">
+                <el-input
+                        type="textarea"
+                        :rows="15"
+                        placeholder="请输入代码,默认无包，请不要添加包名！默认类名为Main，请不要修改！"
+                        v-model="codesource">
+                </el-input>
+
+                <div align="right" style="height: 30px; margin: 8px auto 8px auto;">
+                    <el-button type="success" size="small" @click="run()" round>Run</el-button>
+                    <el-button type="primary" size="small" @click="judge()" round>提交</el-button>
+                    <el-button size="small" @click="reset()" round>重置</el-button>
+                </div>
+
+                <el-input
+                        type="textarea"
+                        :rows="2"
+                        placeholder="System Input! 目前仅支持 new Scanner(System.in) 读取标准输入."
+                        style="margin: 8px auto 8px auto"
+                        v-model="systemIn">
+                </el-input>
+
+                <el-input
+                        type="textarea"
+                        :rows="2"
+                        placeholder="System Output! 输出结果 "
+                        v-model="systemOut"
+                        style="margin: 8px auto 8px auto"
+                        > <!--:disabled="true"-->
+                </el-input>
+            </el-main>
+        </el-container>
+
+        <!--        </div>-->
+    </div>
+    <!--        </div>-->
+
+
+    <br>
+    <br>
+    <!--    <hr>-->
+    <br>
+
+</div>
+
+
+<script src="../js/vue.js"></script>
+<script src="../js/axios-0.18.0.js"></script>
+<!--<script src="../plugins/elementui/lib/index.js"></script>-->
+<!--<link rel="stylesheet" href="../plugins/elementui/lib/theme-chalk/index.css">-->
+<link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mycss.css">
+
+<!-- 引入样式 -->
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+<script>
+    var vue = new Vue({
+        el: "#app",
+        data() {
+            return {
+                problem: {
+                    id: 0,
+                    pbname: "",
+                    source: "",
+                    input: "",
+                    output: "",
+                    tag: "",
+                    description: ""
+                },
+                codesource: "",
+                codestatic: "public class Main{\n" +
+                    "    public static void main(String[] args) {\n" +
+                    "        System.out.println(\"Hello World!\");\n" +
+                    "    }\n" +
+                    "}",
+                username: "",
+                systemIn: "",
+                systemOut: ""
+            }
+
+        },
+        created() {
+            var pid = localStorage.getItem("pid");
+            this.username = localStorage.getItem("username");
+            if(this.username==""||this.username==null)
+                location.href="http://localhost:8082/pages/login.html";
+            this.get(pid);
+            this.codesource = this.codestatic;
+            // this.$message.success(pbname+"...");
+        },
+        methods: {
+            get(pid) {
+                var _this = this;
+                axios.get("http://localhost:10010/problem/" + pid).then((res) => {
+                    _this.problem = res.data.data;
+                })
+            },
+            critic() {
+                location.href = "http://localhost:8082/pages/critic.html";
+            },
+            program() {
+                location.href = "http://localhost:8082/pages/xieti.html";
+            },
+            // judge() {
+            //     var _this = this;
+            //     console.log(this.codesource)
+            //     // let data = {"code": this.codesource ,"pid":this.problem.id};
+            //     let data = new FormData();
+            //     data.append("code", this.codesource);
+            //     data.append("pid", _this.problem.id);
+            //     axios.post("http://localhost:10010/problem/judge", data).then((res) => {
+            //         console.log(res);
+            //         if (res.data.flag) {
+            //             if (res.data.data)
+            //                 _this.$message.success("恭喜AC");
+            //             else _this.$message.error("结果出错");
+            //         } else _this.$message.error("代码有误，请调整");
+            //     })
+            // },
+            judge() {
+                var _this = this;
+                let data = {"code": this.codesource,"pid": this.problem.id,"systemIn": this.problem.input};
+                axios.post("http://localhost:10010/problem/judge", data).then((res) => {
+                    // console.log(res);
+                    if (res.data.flag) {
+                        _this.$message.success("恭喜AC");
+                    } else _this.$message.error("代码有误，请调整");
+                    _this.systemOut=res.data.data;
+                })
+            },
+            personal() {
+                location.href = "http://localhost:8082/pages/personal.html";
+            },
+            sign_out() {
+                localStorage.clear();
+                location.href = "http://localhost:8082/pages/login.html";
+            },
+            index() {
+                location.href = "http://localhost:8082/pages/index.html";
+            },
+            reset() {
+                this.codesource = this.codestatic;
+            },
+            run(){
+                let data = {"code": this.codesource,"systemIn": this.systemIn};
+                axios.post("http://localhost:10010/run",data).then((res)=>{
+                    this.systemOut = res.data;
+                })
+            }
+        }
+
+
+    })
+</script>
+
+</body>
+</html>

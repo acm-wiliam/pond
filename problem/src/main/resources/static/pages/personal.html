@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>个人中心</title>
+</head>
+<body class="hold-transition">
+<div id="app">
+    <div class="content-header">
+        <!--                    <el-row :gutter="0">   &lt;!&ndash;gutter为栅格中的间隔&ndash;&gt;-->
+        <!--        <div style="height: 44px">-->
+        <el-row :gutter="0">
+            <el-col :span="16">
+                <div class="grid-content " @click="index">
+                    <font size="5">YWS_Code</font>
+                </div>
+            </el-col>
+
+            <el-col :span="8">
+                <div class="grid-content " align="right">
+                    <el-button type="text" @click="personal()">{{ruleForm.username}}</el-button>
+                    <el-button type="text" @click="sign_out()">退出</el-button>
+                </div>
+            </el-col>
+            <!--                    </el-row>-->
+            <!--        </div>-->
+        </el-row>
+    </div>
+
+    <div class="app-container">
+        <div class="box">
+            <div id="sign_up">      <!--status-icon-->
+                <el-form :model="ruleForm"  :rules="rules" ref="ruleForm" label-width="100px"
+                         class="demo-ruleForm">
+                    <el-form-item label="用户名" prop="username">
+                        <el-input v-model="ruleForm.username" :disabled="true" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="密码" prop="password">
+                        <el-input type="password" v-model="ruleForm.password" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="年龄" prop="age">
+                        <el-input v-model.number="ruleForm.age"></el-input>
+                    </el-form-item>
+                    <el-form-item label="电子邮箱" prop="email">
+                        <el-input v-model="ruleForm.email"></el-input>
+                    </el-form-item>
+                    <el-form-item label="手机号" prop="phone">
+                        <el-input v-model="ruleForm.phone"></el-input>
+                    </el-form-item>
+                    <el-form-item label="性别" prop="gender">
+                        <el-input v-model="ruleForm.gender"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="submitForm('ruleForm')">修改</el-button>
+                        <el-button @click="resetForm()">复原</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- 引入组件库 -->
+<script src="../js/vue.js"></script>
+<script src="../js/axios-0.18.0.js"></script>
+<script src="../plugins/elementui/index.js"></script>
+<!-- 引入样式 -->
+<link rel="stylesheet" href="../plugins/elementui/index.css">
+<link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mycss.css">
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data() {
+            var checkAge = (rule, value, callback) => {
+                if (!Number.isInteger(value)) {
+                    callback(new Error('请输入数字值'));
+                } else {
+                    if (value < 0) {
+                        callback(new Error('年龄必须为正数'));
+                    } else if (value > 200) {
+                        callback(new Error('年龄必须小于200'));
+                    } else callback();
+                }
+            };
+            var validatePass = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    callback();
+                }
+            };
+            return {
+                ruleForm: {
+                    username: "",
+                    password: "",
+                    age: '',
+                    phone: "",
+                    gender: "",
+                    email: ""
+                },
+                rules: {
+                    password: [
+                        {validator: validatePass, trigger: 'blur'}
+                    ],
+                    age: [
+                        {validator: checkAge, trigger: 'blur'}
+                    ]
+                }
+            };
+        },
+
+        created() {
+            let username = localStorage.getItem("username");
+            if(username==""||username==null)
+                location.href="http://localhost:8082/pages/login.html";
+            this.getUser(username);
+        },
+        methods: {
+            getUser(username) {
+                axios.get("http://localhost:10010/user/name/" + username).then((res) => {
+                    this.ruleForm = res.data;
+                })
+            },
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        // alert('submit!');
+                        axios.put("http://localhost:10010/user/update", this.ruleForm).then((res) => {
+                            if (res.data) {
+                                this.$message.success("修改成功！");
+                            } else this.$message.error("服务器出现故障，修改失败");
+                        })
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+
+                    this.getUser(this.ruleForm.username);
+                });
+            },
+            resetForm() {
+                // this.$refs[formName].resetFields();
+                this.getUser(this.ruleForm.username);
+            },
+            personal(){
+                location.href="http://localhost:8082/pages/personal.html";
+            },
+            sign_out(){
+                localStorage.clear();
+                location.href="http://localhost:8082/pages/login.html";
+            },
+            index(){
+                location.href="http://localhost:8082/pages/index.html";
+            }
+        }
+    })
+
+</script>
+</body>
+</html>

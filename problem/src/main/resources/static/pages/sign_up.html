@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+</head>
+<body>
+
+<div id="app">
+
+    <div class="content-header">
+        <el-row :gutter="0">   <!--gutter为栅格中的间隔-->
+            <el-col :span="16">
+                <div class="grid-content ">
+                    <font size="5">YWS_Code</font>
+                </div>
+            </el-col>
+
+            <el-col :span="8">
+                <div class="grid-content " align="right">
+                    <el-button type="text" @click="login()">登录</el-button>
+                    <el-button type="text" @click="register()">注册</el-button>
+                </div>
+            </el-col>
+        </el-row>
+    </div>
+    <div class="app-container">
+        <div class="box">
+            <div id="sign_up">
+                <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px"
+                         class="demo-ruleForm" >
+                    <el-form-item label="用户名" prop="username">
+                        <el-input v-model="ruleForm.username"></el-input>
+                    </el-form-item>
+                    <el-form-item label="密码" prop="password">
+                        <el-input type="password" v-model="ruleForm.password" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="确认密码" prop="checkPass">
+                        <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-button type="primary" @click="submitForm('ruleForm')">注册</el-button>
+                        <el-button @click="resetForm('ruleForm')">重置</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 引入组件库 -->
+<script src="../js/vue.js"></script>
+<script src="../js/axios-0.18.0.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<!-- 引入样式 -->
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mycss.css">
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data() {
+            var checkAge = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('用户名不能为空'));
+                }else callback();
+            };
+            var validatePass = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    if (this.ruleForm.checkPass !== '') {
+                        this.$refs.ruleForm.validateField('checkPass');
+                    }
+                    callback();
+                }
+            };
+            var validatePass2 = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.ruleForm.password) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            };
+            return {
+                ruleForm: {
+                    password: '',
+                    checkPass: '',
+                    username: ''
+                },
+                rules: {
+                    password: [
+                        {validator: validatePass, trigger: 'blur'}
+                    ],
+                    checkPass: [
+                        {validator: validatePass2, trigger: 'blur'}
+                    ],
+                    username: [
+                        {validator: checkAge, trigger: 'blur'}
+                    ]
+                }
+            }
+        },
+
+        created() {
+        },
+
+        methods: {
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {    //localhost:8081/
+                        var _this=this;
+                        // let pass = md5(this.ruleForm.password);
+                        // console.log(pass);
+                        // console.log(this.ruleForm.password);
+                        // console.log(md5(pass));
+                        axios.get("http://localhost:10010/user/name/"+_this.ruleForm.username).then((res) => {
+                            console.log(res);
+                            console.log(res.data);
+                            if(res.data==""){
+                                var url="http://localhost:10010/user/insert/"+ _this.ruleForm.username+"/"+_this.ruleForm.password;
+                                axios.post(url,null).then((res)=>{
+                                    // console.log("run...");
+                                    location.href="http://localhost:8082/pages/login.html";
+                                })
+                            }else _this.$message.error('用户名已存在');
+                        })
+
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            },
+            login(){
+                location.href="http://localhost:8082/pages/login.html";
+            },
+            register(){
+                location.href="http://localhost:8082/pages/sign_up.html";
+            }
+        }
+    })
+
+</script>
+</body>
+</html>

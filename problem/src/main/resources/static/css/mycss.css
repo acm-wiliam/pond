@@ -1,0 +1,72 @@
+
+#sign_up{
+    /*display: inline-block;*/
+    /*text-align: center;*/
+    max-width: 600px;
+    vertical-align: middle;
+    alignment: center;
+    /*border:2px solid #DCDFE6;*/
+    text-align:left;
+    /*border-radius: 8px;*/
+    margin: 3px auto;
+    width:50%;
+}
+
+/*//限定外面div的最大高度，设置滚动条自动出现*/
+.outer_div {
+    max-height: 300px;
+    overflow-y: auto;
+    text-align: center;
+}
+
+.inner_div {
+    height: 100px;
+    margin-bottom: 20px;
+    background-color: #00ffd9;
+}
+
+.el-row {
+    margin-bottom: 20px;
+
+}
+
+.el-col {
+    border-radius: 4px;
+}
+
+.bg-purple-dark {
+    background: #99a9bf;
+}
+
+.bg-purple {
+    background: #d3dce6;
+}
+
+.bg-purple-light {
+    background: #e5e9f2;
+}
+
+.grid-content {
+    border-radius: 4px;
+    min-height: 36px;
+}
+
+.row-bg {
+    padding: 10px 0;
+    background-color: #f9fafc;
+}
+
+
+.user-name {
+    display: inline-block;
+    max-width: 100px;
+    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    vertical-align: top;
+    margin-top: 3px;
+    margin-left: 6px;
+}

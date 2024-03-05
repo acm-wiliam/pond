@@ -1,0 +1,55 @@
+server:
+  port: 10010 #网关端口
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    nacos:
+      server-addr: localhost:8848  #nacos 地址
+    gateway:
+      routes: # 网关路由配置
+        - id: user-service  # 路由id，自定义，唯一即可
+          #          # uri: http://127.0.0.1:8082 路由的目标地址  http就是固定地址
+          uri: lb://userservice  #路由目标地址  lb为负载均衡
+          predicates: #路由断言  判断路径是否符合规则
+            - Path=/user/** #路径断言  判断路径是否是user开头
+        ##          filters:  # 过滤器   具体使用可以看参考文档
+        ##           - AddRequestHeader=Truth, yws is handsome!
+        #            - Before=2031-01-20T17:42:47.433+08:00[Asia/Shanghai]
+          #      default-filters:  #默认过滤器  对所有路由都生效
+          #        - AddRequestHeader=Truth, yws is handsome!  #都自带order值  从1开始
+        - id: problem-service
+          uri: lb://problemservice
+          predicates:
+            - Path=/problem/**
+        - id: discuss-service
+          uri: lb://discussservice
+          predicates:
+            - Path=/discuss/**
+        - id: execute-service
+          uri: lb://executeservice
+          predicates:
+            - Path=/run/**
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: #允许那些网站跨域请求
+              - "http://localhost:8081"
+              - "http://localhost:8082"
+              - "http://localhost:8083"
+              - "http://localhost:8085"
+            allowedMethods: # 允许的跨域ajax请求
+              - "GET"
+              - "POST"
+              - "DELETE"
+              - "PUT"
+              - "OPTIONS"
+            allowedHeaders: "*" # 允许在请求中携带的头信息
+            allowCredentials: true  # 是否允许携带cookie
+            maxAge: 360000  # 跨域检测的有效期
+
+gateway:  #只针对单个服务  设置
+  ribbon:   #对gateway服务设置负载均衡规则为随机
+    NFLoadBalancerRuleClassName: com.alibaba.cloud.nacos.ribbon.NacosRule  #配置nacos的负载均衡规则  是一种集群内的随机
